@@ -29,6 +29,7 @@ private:
     string intro;
     vector<string> habits;
     Coordinate coord;
+    static int counter;
 };
 
 #endif // INDIVIDUAL_H

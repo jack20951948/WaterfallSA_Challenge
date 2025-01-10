@@ -1,5 +1,7 @@
 #include "Individual.hpp"
 
+int Individual::counter = 1;
+
 int Individual::getId() {
     return this->id;
 }
@@ -72,10 +74,8 @@ void Individual::setCoord(Coordinate coord) {
 }
 
 Individual::Individual(Gender gender, int age, string intro, vector<string> habits, Coordinate coord)
-    : coord(coord) {
-    // ues current time as seed for random generator, id is a random integer greater than 0.
-    srand(time(0));
-    this->id = rand() % 1000 + 1;
+    : Coordinate(coord) {
+    this->id = counter++;
     setGender(gender);
     setAge(age);
     setIntro(intro);
