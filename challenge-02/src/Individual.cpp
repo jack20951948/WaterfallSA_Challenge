@@ -74,7 +74,7 @@ void Individual::setCoord(Coordinate coord) {
 }
 
 Individual::Individual(Gender gender, int age, string intro, vector<string> habits, Coordinate coord)
-    : Coordinate(coord) {
+    : coord(coord) {
     this->id = counter++;
     setGender(gender);
     setAge(age);
