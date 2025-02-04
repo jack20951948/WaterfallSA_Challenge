@@ -12,6 +12,7 @@ public:
     void addCardToHand(UNOCard* card);
     void printHandCard();
     bool checkWin();
+    bool checkAnyValidCard(UNOCard* card);
 
     Player();
     ~Player();

@@ -32,3 +32,12 @@ void Player::printHandCard() {
 bool Player::checkWin() {
     return (*handCard).size() == 0;
 }
+
+bool Player::checkAnyValidCard(UNOCard* card) {
+    for (int i = 0; i < (*handCard).size(); i++) {
+        if ((*handCard)[i]->getNumber() == card->getNumber() || (*handCard)[i]->getSuit() == card->getSuit()) {
+            return true;
+        }
+    }
+    return false;
+}

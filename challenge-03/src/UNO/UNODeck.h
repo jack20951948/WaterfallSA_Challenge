@@ -9,10 +9,12 @@ public:
     ~UNODeck();
     void shuffle();
     UNOCard* drawCard();
+    void addCards(UNOCard** cards, int amount);
 private:
     UNOCard** cards;
     int numberAmount;
     int colorAmount;
+    int cardLeft = 0;
 };
 
 #endif // UNODECK_H

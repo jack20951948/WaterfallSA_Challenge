@@ -11,11 +11,11 @@ UNOCard* AIPlayer::makeDecision() {
     // check if the player has any card in hand
     if ((*getHandCards()).size() == 0) {
         std::cout << "Player has no card in hand!" << std::endl;
-        return;
+        return nullptr;
     }
 
     // AIPlayer randomly choose a card to play
-    std::cout << "AIPlayer is playing!" << std::endl;
+    std::cout << "AIPlayer is playing! name: " << this->name << std::endl;
     int cardIndex = rand() % (*handCard).size();
     UNOCard* roundCard = (*handCard)[cardIndex];
 
