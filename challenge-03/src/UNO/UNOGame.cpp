@@ -2,6 +2,7 @@
 
 UNOGame::UNOGame() {
     cardsOnTable = std::vector<std::unique_ptr<UNOCard>>();
+    initHandCards = 5;
 }
 
 bool UNOGame::checkIfValidCard(std::unique_ptr<UNOCard>& card) {

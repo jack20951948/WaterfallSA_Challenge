@@ -20,13 +20,16 @@ class Game {
             this->players = std::move(players);
         }
         void prepareGame() {
+            if (initHandCards < 1) {
+                throw "Please setup players' init hand card amount!";
+            }
             for (auto& player : players) {
                 player->setName();
             }
             createDeck();
             deck->shuffle();
             for (auto& player : players) {
-                for (int i = 0; i < 5; ++i) {
+                for (int i = 0; i < initHandCard; ++i) {
                     player->addCardToHand(deck->drawCard());
                 }
             }
@@ -37,6 +40,7 @@ class Game {
     protected:
         virtual void startGame() = 0;
         virtual void createDeck() = 0;
+        int initHandCards = 0;
     };
 
 #endif // GAME_H

@@ -3,6 +3,7 @@
 
 ShowdownGame::ShowdownGame() {
     setRoundLeft(13);
+    initHandCards = 13;
 }
 
 void ShowdownGame::setRoundLeft(int roundLeft) {
@@ -14,12 +15,6 @@ void ShowdownGame::setRoundLeft(int roundLeft) {
 
 int ShowdownGame::getRoundLeft() {
     return roundLeft;
-}
-
-void ShowdownGame::setPlayers(Player* players[], int numPlayers) {
-    for (int i = 0; i < numPlayers; i++) {
-        this->players[i] = players[i];
-    }
 }
 
 Player* ShowdownGame::competeForRoundWinner(Player* players[]) {
@@ -47,30 +42,6 @@ void ShowdownGame::showWinner() {
 }
 
 void ShowdownGame::startGame() {
-    // create players
-    Player* players[4] = {new HumanPlayer(), new AIPlayer(), new AIPlayer(), new AIPlayer()};
-    setPlayers(players, 4);
-
-    // ask players to name themselves
-    for (int i = 0; i < 4; i++) {
-        players[i]->setName();
-    }
-
-    // create a deck
-    std::cout << "Creating a deck..." << std::endl;
-    deck = new Deck(13, 4);
-
-    std::cout << "Shuffling the deck..." << std::endl;
-    // shuffle the deck
-    deck->shuffle();
-
-    // players draw cards
-    for (int i = 0; i < 13; i++) {
-        for (int j = 0; j < 4; j++) {
-            players[j]->addCardToHand(deck->drawCard());
-        }
-    }
-
     // print the cards in each player's hand
     for (int i = 0; i < 4; i++) {
         std::cout << players[i]->getName() << "'s hand cards: ";

@@ -1,24 +1,20 @@
 #ifndef SHOWDOWNGAME_H
 #define SHOWDOWNGAME_H
 
-#include "HumanPlayer.h"
-#include "AIPlayer.h"
-#include "Deck.h"
+#include "ShowdownPlayer.h"
+#include "../Game.h"
 #include <iostream>
 
-class ShowdownGame {
+class ShowdownGame: public Game<PokerCard> {
 public:
     ShowdownGame();
     void setRoundLeft(int roundLeft);
     int getRoundLeft();
-    void setPlayers(Player* players[], int numPlayers);
-    void startGame();
+    void createDeck() override;
+    void startGame() override;
 private:
-    Player* competeForRoundWinner(Player* players[]);
-    void showWinner();
+    std::unique_ptr<ShowdownPlayer> competeForRoundWinner(vector<std::unique_ptr<ShowdownPlayer>>& players[]);
     int roundLeft;
-    Player* players[4];
-    Deck* deck;
 };;
 
 #endif // SHOWDOWNGAME_H

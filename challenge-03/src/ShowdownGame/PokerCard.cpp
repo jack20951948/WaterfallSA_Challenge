@@ -1,12 +1,8 @@
 #include "PokerCard.h"
 
 PokerCard::PokerCard(CardRank rank, CardSuit suit) {
-    this->rank = rank;
-    this->suit = suit;
-}
-
-PokerCard::~PokerCard() {
-    std::cout << "Card destructor" << std::endl;
+    setRank(rank);
+    setSuit(suit);
 }
 
 std::string PokerCard::getRankString() {
@@ -64,8 +60,16 @@ CardRank PokerCard::getRank() {
     return rank;
 }
 
+void PokerCard::setRank(CardRank rank) {
+    this->rank = rank;
+}
+
 CardSuit PokerCard::getSuit() {
     return suit;
+}
+
+void PokerCard::setSuit(CardSuit suit) {
+    this->suit = suit;
 }
 
 void PokerCard::printCard() {
