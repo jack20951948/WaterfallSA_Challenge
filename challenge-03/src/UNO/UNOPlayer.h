@@ -5,7 +5,7 @@
 #include "UNOCard.h"
 #include <iostream>
 
-class UNOPlayer : public Player<UNOCard> {
+class UNOPlayer: public Player<UNOCard> {
 public:
     bool checkWin();
     bool checkAnyValidCard(std::unique_ptr<UNOCard>& card);

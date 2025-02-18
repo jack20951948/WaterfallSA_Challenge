@@ -13,7 +13,7 @@ public:
     void createDeck() override;
     void startGame() override;
 private:
-    std::unique_ptr<ShowdownPlayer> competeForRoundWinner(vector<std::unique_ptr<ShowdownPlayer>>& players[]);
+    std::unique_ptr<ShowdownPlayer> competeForRoundWinner(std::vector<std::unique_ptr<ShowdownPlayer>> players);
     int roundLeft;
 };;
 

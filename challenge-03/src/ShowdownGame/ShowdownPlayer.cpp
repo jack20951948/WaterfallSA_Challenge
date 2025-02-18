@@ -4,7 +4,7 @@ ShowdownPlayer::ShowdownPlayer(): Player<PokerCard>() {
     score = 0;
 }
 
-Card* ShowdownPlayer::show() {
+PokerCard* ShowdownPlayer::show() {
     return roundCard;
 }
 

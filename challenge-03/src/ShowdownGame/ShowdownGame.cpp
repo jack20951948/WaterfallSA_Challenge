@@ -17,35 +17,35 @@ int ShowdownGame::getRoundLeft() {
     return roundLeft;
 }
 
-Player* ShowdownGame::competeForRoundWinner(Player* players[]) {
-    Player* winner = players[0];
+std::unique_ptr<ShowdownPlayer> ShowdownGame::competeForRoundWinner(std::vector<std::unique_ptr<ShowdownPlayer>> players) {
+    std::vector<std::unique_ptr<ShowdownPlayer>> temp;
+    for (int i = 0; i < 4; i++) {
+        temp.push_back(std::move(players[i]));
+    }
+    std::unique_ptr<ShowdownPlayer> winner = std::move(temp[0]);
     for (int i = 1; i < 4; i++) {
-        if (players[i]->show()->getRank() > winner->show()->getRank()) {
-            winner = players[i];
-        } else if (players[i]->show()->getRank() == winner->show()->getRank()) {
-            if (players[i]->show()->getSuit() > winner->show()->getSuit()) {
-                winner = players[i];
+        if (temp[i]->show()->getRank() > winner->show()->getRank()) {
+            winner = std::move(temp[i]);
+        } else if (temp[i]->show()->getRank() == winner->show()->getRank()) {
+            if (temp[i]->show()->getSuit() > winner->show()->getSuit()) {
+                winner = std::move(temp[i]);
             }
         }
     }
     return winner;
 }
 
-void ShowdownGame::showWinner() {
-    Player* winner = players[0];
-    for (int i = 1; i < 4; i++) {
-        if (players[i]->getScore() > winner->getScore()) {
-            winner = players[i];
-        }
-    }
-    std::cout << "The winner is: " << winner->getName() << std::endl;
-}
-
 void ShowdownGame::startGame() {
+    // find the winner of this round
+    std::vector<std::unique_ptr<ShowdownPlayer>> showdownPlayers;
+    for (auto& player : players) {
+        showdownPlayers.push_back(std::unique_ptr<ShowdownPlayer>(dynamic_cast<ShowdownPlayer*>(player.release())));
+    }
+
     // print the cards in each player's hand
     for (int i = 0; i < 4; i++) {
-        std::cout << players[i]->getName() << "'s hand cards: ";
-        players[i]->printHandCard();
+        std::cout << showdownPlayers[i]->getName() << "'s hand cards: ";
+        showdownPlayers[i]->printHand();
     }
 
     // if the game rounds are not left
@@ -53,16 +53,15 @@ void ShowdownGame::startGame() {
         
         // each player takes a turn
         for (int i = 0; i < 4; i++) {
-            players[i]->makeDecision();
+            showdownPlayers[i]->makeDecision();
         }
 
         // Show the cards played by each player
         for (int i = 0; i < 4; i++) {
-            std::cout << players[i]->getName() << " played: " << players[i]->show()->getSuitString() << " " << players[i]->show()->getRankString() << std::endl;
+            std::cout << showdownPlayers[i]->getName() << " played: " << showdownPlayers[i]->show()->getSuitString() << " " << showdownPlayers[i]->show()->getRankString() << std::endl;
         }
 
-        // find the winner of this round
-        Player* winner = competeForRoundWinner(players);
+        ShowdownPlayer* winner = competeForRoundWinner(std::move(showdownPlayers)).release();
         std::cout << "The winner of this round is: " << winner->getName() << std::endl;
 
         // update score
@@ -73,5 +72,12 @@ void ShowdownGame::startGame() {
     }
 
     // show the winner
-    showWinner();
+    std::unique_ptr<ShowdownPlayer> gameWinner = std::move(showdownPlayers[0]);
+    for (int i = 1; i < 4; i++) {
+        if (showdownPlayers[i]->getScore() > gameWinner->getScore()) {
+            gameWinner = std::move(showdownPlayers[i]);
+        }
+    }
+
+    showWinner(std::move(gameWinner));
 }

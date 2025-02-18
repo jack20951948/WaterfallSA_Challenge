@@ -41,7 +41,7 @@ void UNOGame::startGame() {
 
     for (int i = 0; i < 4; i++) {
         if (static_cast<UNOPlayer*>(players[i].get())->checkWin()) {
-            showWinner(players[i]);
+            showWinner(std::move(players[i]));
             return;
         }
         while (true) {
@@ -56,7 +56,7 @@ void UNOGame::startGame() {
                     card->printCard();
                     std::cout << std::endl;
                     if (static_cast<UNOPlayer*>(players[currentPlayerIndex].get())->checkWin()) {
-                        showWinner(players[currentPlayerIndex]);
+                        showWinner(std::move(players[currentPlayerIndex]));
                         return;
                     }
                     currentPlayerIndex = (currentPlayerIndex + 1) % 4;

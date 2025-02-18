@@ -20,7 +20,7 @@ class Game {
             this->players = std::move(players);
         }
         void prepareGame() {
-            if (initHandCards < 1) {
+            if (this->initHandCards < 1) {
                 throw "Please setup players' init hand card amount!";
             }
             for (auto& player : players) {
@@ -29,12 +29,12 @@ class Game {
             createDeck();
             deck->shuffle();
             for (auto& player : players) {
-                for (int i = 0; i < initHandCard; ++i) {
+                for (int i = 0; i < this->initHandCards; ++i) {
                     player->addCardToHand(deck->drawCard());
                 }
             }
         }
-        void showWinner(std::unique_ptr<Player<T>>& winner) {
+        void showWinner(std::unique_ptr<Player<T>> winner) {
             std::cout << "The winner is: " << winner->getName() << std::endl;
         }
     protected:
