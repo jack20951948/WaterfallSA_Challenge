@@ -1,16 +1,12 @@
 #include "UNOCard.h"
 
-UNOCard::UNOCard(int number, UNOCardColor suit) {
+UNOCard::UNOCard(UNOCardColor color, int number) {
+    setColor(color);
     setNumber(number);
-    setSuit(suit);
 }
 
-UNOCard::~UNOCard() {
-    std::cout << "Card destructor" << std::endl;
-}
-
-std::string UNOCard::getSuitString() {
-    switch (static_cast<int>(suit)) {
+std::string UNOCard::getColorString() {
+    switch (static_cast<int>(color)) {
     case static_cast<int>(UNOCardColor::BLUE):
         return "BLUE";
     case static_cast<int>(UNOCardColor::RED):
@@ -37,10 +33,14 @@ void UNOCard::setNumber(int number) {
     this->number = number;
 }
 
-UNOCardColor UNOCard::getSuit() {
-    return suit;
+UNOCardColor UNOCard::getColor() {
+    return color;
 }
 
-void UNOCard::setSuit(UNOCardColor suit) {
-    this->suit = suit;
+void UNOCard::setColor(UNOCardColor color) {
+    this->color = color;
+}
+
+void UNOCard::printCard() {
+    std::cout << getColorString() << "-" << number;
 }

@@ -1,23 +1,24 @@
-#ifndef CARD_H
-#define CARD_H
+#ifndef POKERCARD_H
+#define POKERCARD_H
 
 #include <iostream>
 #include "CardSuit.h"
 #include "CardRank.h"
+#include "Card.h"
 
-class Card
+class PokerCard: public Card
 {
 private:
     CardRank rank;
     CardSuit suit;
 public:
-    Card(CardRank rank, CardSuit suit);
-    ~Card();
+    PokerCard(CardRank rank, CardSuit suit);
+    ~PokerCard();
     CardRank getRank();
     CardSuit getSuit();
     std::string getRankString();
     std::string getSuitString();
-
+    void printCard();
 };
 
-#endif // CARD_H
+#endif // POKERCARD_H

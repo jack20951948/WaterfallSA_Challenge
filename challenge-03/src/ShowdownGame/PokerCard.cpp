@@ -1,15 +1,15 @@
-#include "Card.h"
+#include "PokerCard.h"
 
-Card::Card(CardRank rank, CardSuit suit) {
+PokerCard::PokerCard(CardRank rank, CardSuit suit) {
     this->rank = rank;
     this->suit = suit;
 }
 
-Card::~Card() {
+PokerCard::~PokerCard() {
     std::cout << "Card destructor" << std::endl;
 }
 
-std::string Card::getRankString() {
+std::string PokerCard::getRankString() {
     switch (static_cast<int>(rank)) {
     case static_cast<int>(CardRank::TWO):
         return "2";
@@ -43,7 +43,7 @@ std::string Card::getRankString() {
     }
 }
 
-std::string Card::getSuitString() {
+std::string PokerCard::getSuitString() {
     switch (static_cast<int>(suit)) {
     case static_cast<int>(CardSuit::CLUB):
         return "CLUB";
@@ -60,10 +60,14 @@ std::string Card::getSuitString() {
     }
 }
 
-CardRank Card::getRank() {
+CardRank PokerCard::getRank() {
     return rank;
 }
 
-CardSuit Card::getSuit() {
+CardSuit PokerCard::getSuit() {
     return suit;
+}
+
+void PokerCard::printCard() {
+    std::cout << getRankString() << "-" << getSuitString();
 }

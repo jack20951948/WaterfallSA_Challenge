@@ -1,100 +1,60 @@
 #include "UNOGame.h"
 
 UNOGame::UNOGame() {
-    cardsOnTable = new UNOCard*[1];
+    cardsOnTable = std::vector<std::unique_ptr<UNOCard>>();
 }
 
-void UNOGame::setPlayers(Player* players[], int numPlayers) {
-    for (int i = 0; i < numPlayers; i++) {
-        this->players[i] = players[i];
-    }
-}
-
-bool UNOGame::checkIfValidCard(UNOCard* card) {
-    if (card->getNumber() == cardsOnTable[0]->getNumber() || card->getSuit() == cardsOnTable[0]->getSuit()) {
+bool UNOGame::checkIfValidCard(std::unique_ptr<UNOCard>& card) {
+    if (card->getNumber() == cardsOnTable[0]->getNumber() || card->getColor() == cardsOnTable[0]->getColor()) {
         return true;
     }
     return false;
 }
 
-void UNOGame::addCardToTable(UNOCard* card) {
-    if (cardOnTableAmount == 0) {
-        cardsOnTable[0] = card;
-        cardOnTableAmount++;
-    } else {
-        UNOCard** temp = new UNOCard*[cardOnTableAmount];
-        for (int i = 0; i < cardOnTableAmount; i++) {
-            temp[i] = cardsOnTable[i];
-        }
-        delete[] cardsOnTable;
-        cardsOnTable = new UNOCard*[cardOnTableAmount + 1];
-        for (int i = 0; i < cardOnTableAmount; i++) {
-            cardsOnTable[i + 1] = temp[i];
-        }
-        cardsOnTable[0] = card;
-        cardOnTableAmount++;
-    }
+void UNOGame::addCardToTable(std::unique_ptr<UNOCard> card) {
+    cardsOnTable.push_back(std::move(card));
 }
 
-std::pair<UNOCard**, int> UNOGame::getCardsOnTableToDeck() {
-    // get the cards except for first card on the table to the deck
-    UNOCard** temp = new UNOCard*[cardOnTableAmount - 1];
-    for (int i = 1; i < cardOnTableAmount; i++) {
-        temp[i - 1] = cardsOnTable[i];
+std::vector<std::unique_ptr<UNOCard>> UNOGame::getCardsOnTableToDeck() {
+    std::vector<std::unique_ptr<UNOCard>> temp;
+    for (int i = 1; i < cardsOnTable.size(); i++) {
+        temp.push_back(std::move(cardsOnTable[i]));
     }
-    int tempAmount = cardOnTableAmount;
-    cardOnTableAmount = 1;
-    return std::make_pair(temp, tempAmount - 1);
+    cardsOnTable.erase(cardsOnTable.begin() + 1, cardsOnTable.end());
+    return temp;
 }
 
-void UNOGame::showWinner(Player* winner) {
-    std::cout << "The winner is: " << winner->getName() << std::endl;
+void UNOGame::createDeck() {
+    deck = std::make_unique<UNODeck>();
+    deck->createDeck();
 }
 
 void UNOGame::startGame() {
-    // create players
-    Player* players[4] = {new HumanPlayer(), new AIPlayer(), new AIPlayer(), new AIPlayer()};
-    setPlayers(players, 4);
-
-    // ask players to name themselves
-    for (int i = 0; i < 4; i++) {
-        players[i]->setName();
-    }
-
-    // create a deck
-    deck = new UNODeck(10, 4);
-    
-    // shuffle the deck
-    deck->shuffle();
-
-    // deal cards to players
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 5; j++) {
-            players[i]->addCardToHand(deck->drawCard());
-        }
-    }
-
     // start the game
+    std::cout << "Starting the game..." << std::endl;
     int currentPlayerIndex = 0;
 
     // draw a card from the deck
-    addCardToTable(deck->drawCard());
-    // cardsOnTable[0] = roundCard;
-    std::cout << "\nThe round card is: " << cardsOnTable[0]->getSuitString() << "-" << cardsOnTable[0]->getNumber() << std::endl << std::endl;
+    addCardToTable(std::unique_ptr<UNOCard>(static_cast<UNOCard*>(deck->drawCard().release())));
+    std::cout << "\nThe round card is: " << cardsOnTable[0]->getColorString() << "-" << cardsOnTable[0]->getNumber() << std::endl << std::endl;
 
     for (int i = 0; i < 4; i++) {
-        if (players[i]->checkWin()) {
+        if (static_cast<UNOPlayer*>(players[i].get())->checkWin()) {
             showWinner(players[i]);
             return;
         }
         while (true) {
-            std::cout << "\nThe card on the table is: " << cardsOnTable[0]->getSuitString() << "-" << cardsOnTable[0]->getNumber() << std::endl << std::endl;
-            if (players[currentPlayerIndex]->checkAnyValidCard(cardsOnTable[0])) {
-                UNOCard* card = players[currentPlayerIndex]->makeDecision();
+            std::cout << "\nThe card on the table is: " << cardsOnTable[0]->getColorString() << "-" << cardsOnTable[0]->getNumber() << std::endl << std::endl;
+            if (static_cast<UNOPlayer*>(players[currentPlayerIndex].get())->checkAnyValidCard(cardsOnTable[0])) {
+                std::unique_ptr<UNOCard> card = players[currentPlayerIndex].get()->makeDecision();
+                // std::cout << "Player " << players[currentPlayerIndex]->getName() << " played: ";
+                card->printCard();
                 if (checkIfValidCard(card)) {
-                    addCardToTable(card);
-                    std::cout << "Your card is: " << card->getSuitString() << "-" << card->getNumber() << std::endl;
-                    if (players[currentPlayerIndex]->checkWin()) {
+                    addCardToTable(std::move(card));
+                    std::cout << "Your card is: ";
+                    card->printCard();
+                    std::cout << std::endl;
+                    if (static_cast<UNOPlayer*>(players[currentPlayerIndex].get())->checkWin()) {
                         showWinner(players[currentPlayerIndex]);
                         return;
                     }
@@ -102,7 +62,7 @@ void UNOGame::startGame() {
                     continue;
                 } else {
                     std::cout << "Invalid card! Please play a valid card!" << std::endl;
-                    players[currentPlayerIndex]->addCardToHand(card);
+                    players[currentPlayerIndex]->addCardToHand(std::move(card));
                 }
             } else {
                 // no valid card in hand
@@ -112,11 +72,15 @@ void UNOGame::startGame() {
                     // no more cards in the deck
                     std::cout << "No more cards in the deck!" << std::endl;
                     std::cout << "Adding cards from the table to the deck..." << std::endl;
-                    std::pair<UNOCard**, int> cardsToDeck = getCardsOnTableToDeck();
-                    deck->addCards(cardsToDeck.first, cardsToDeck.second);
+                    std::vector<std::unique_ptr<UNOCard>> cardsToDeck = getCardsOnTableToDeck();
+                    std::vector<std::unique_ptr<Card>> cardsToDeckBase;
+                    for (auto& card : cardsToDeck) {
+                        cardsToDeckBase.push_back(std::move(card));
+                    }
+                    deck->addCards(std::move(cardsToDeckBase));
                     deck->shuffle();
                 } else {
-                    players[currentPlayerIndex]->addCardToHand(deck->drawCard());
+                    players[currentPlayerIndex]->addCardToHand(std::unique_ptr<UNOCard>(static_cast<UNOCard*>(deck->drawCard().release())));
                 }
             }
         }

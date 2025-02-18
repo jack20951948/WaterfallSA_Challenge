@@ -1,25 +1,23 @@
 #ifndef UNOGAME_H
 #define UNOGAME_H
 
-#include "HumanPlayer.h"
-#include "AIPlayer.h"
+#include "UNOHumanPlayer.h"
+#include "UNOAIPlayer.h"
 #include "UNODeck.h"
+#include "../Game.h"
 #include <iostream>
 
-class UNOGame {
+class UNOGame : public Game<UNOCard> {
 public:
     UNOGame();
-    void setPlayers(Player* players[], int numPlayers);
-    void startGame();
-    bool checkIfValidCard(UNOCard* card);
-    void addCardToTable(UNOCard* card);
-    std::pair<UNOCard**, int> getCardsOnTableToDeck();
+protected:
+    void createDeck() override;
+    void startGame() override;
+    void addCardToTable(std::unique_ptr<UNOCard> card);
+    bool checkIfValidCard(std::unique_ptr<UNOCard>& card);
+    std::vector<std::unique_ptr<UNOCard>> getCardsOnTableToDeck();
 private:
-    void showWinner(Player* winner);
-    Player* players[4];
-    UNODeck* deck;
-    UNOCard** cardsOnTable = NULL;
-    int cardOnTableAmount = 0;
-};;
+    std::vector<std::unique_ptr<UNOCard>> cardsOnTable;
+};
 
 #endif // UNOGAME_H
