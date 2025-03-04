@@ -1,4 +1,5 @@
 #include "Sprite.hpp"
+#include "WaterFireCollision.hpp"
 
 Sprite::Sprite(int position, std::string type) {
     this->type = type;
@@ -14,7 +15,6 @@ std::string Sprite::getType() {
 }
 
 void Sprite::setPosition(int position) {
-
     if (position >= 0 && position <= 29) {
         this->position = position;
     } else {
@@ -23,5 +23,6 @@ void Sprite::setPosition(int position) {
 }
 
 bool Sprite::collision(Sprite* sprite, std::function<void(Sprite)> removeSprite) {
-    return collisionHandler->collision(this, sprite, removeSprite);
+    CollisionHandler* handler = new WaterFireCollision();
+    return handler->collision(this, sprite, removeSprite);
 }

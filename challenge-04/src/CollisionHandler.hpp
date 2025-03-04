@@ -1,13 +1,13 @@
 #ifndef COLLISIONHANDLER_HPP
 #define COLLISIONHANDLER_HPP
 
-#include "Sprite.hpp"
+class Sprite;
 
 class CollisionHandler {
 protected:
-    CollisionHandler* next;
+    CollisionHandler* next = nullptr;
 public:
-    virtual bool collision(Sprite* c1, Sprite* c2) = 0;
+    virtual bool collision(Sprite* c1, Sprite* c2, std::function<void(Sprite)> removeSprite) = 0;
 };
 
 #endif

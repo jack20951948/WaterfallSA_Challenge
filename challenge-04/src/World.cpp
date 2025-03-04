@@ -52,12 +52,7 @@ void World::removeSprite(Sprite sprite) {
 }
 
 bool World::checkCollision(Sprite* sprite1, Sprite* sprite2, std::function<void(Sprite)> removeSprite) {
-    if (sprite1->collision(sprite2)) {
-        removeSprite(*sprite1);
-        removeSprite(*sprite2);
-        return true;
-    }
-    return false;
+    return sprite1->collision(sprite2, removeSprite);
 }
 
 void World::printSprites() {
@@ -70,8 +65,45 @@ World::~World() {
     sprites.clear();
 }
 
-void World::Start() {
-    printSprites();
+void World::run(int start, int end) {
+    for (int i = 0; i < sprites.size(); i++) {
+        if (sprites[i].getPosition() == start) {
+            std::cout << "Sprite type: " << sprites[i].getType() << " at position: " << sprites[i].getPosition() << std::endl;
+            for (int j = 0; j < sprites.size(); j++) {
+                if (sprites[j].getPosition() == end) {
+                    std::cout << "Sprite type: " << sprites[j].getType() << " at position: " << sprites[j].getPosition() << std::endl;
+                    try {
+                        if (checkCollision(&sprites[i], &sprites[j], std::bind(&World::removeSprite, this, std::placeholders::_1))) {
+                            sprites[i].setPosition(end);
+                        }
+                    } catch (const char* msg) {
+                        std::cerr << msg << std::endl;
+                        return;
+                    }
+                    break;
+                }
+            }
+            sprites[i].setPosition(end);
+            break;
+        }
+    }
+}
 
+void World::Start() {
+    while (true) {
+        printSprites();
     
+        int start, end;
+        std::cout << "Enter two number to move (0-29)";
+        std::cin >> start >> end;
+        if (start < 0 || start > 29 || end < 0 || end > 29) {
+            std::cerr << "Invalid move!" << std::endl;
+            return;
+        }
+    
+        std::cout << start << " " << end << std::endl;
+    
+        run(start, end);
+        std::cout << "============================" << std::endl;
+    }
 }

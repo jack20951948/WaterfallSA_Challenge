@@ -16,6 +16,7 @@ public:
     void removeSprite(Sprite sprite);
     void Start();
     void printSprites();
+    void run(int start, int end);
 
     // checkCollision(Sprite* sprite1, Sprite* sprite2, func removeSprite);
     bool checkCollision(Sprite* sprite1, Sprite* sprite2, std::function<void(Sprite)> removeSprite);
