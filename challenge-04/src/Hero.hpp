@@ -2,6 +2,7 @@
 #define HERO_HPP
 
 #include "Sprite.hpp"
+#include <iostream>
 
 class Hero : public Sprite {
 private:

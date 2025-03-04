@@ -2,18 +2,19 @@
 #define WORLD_HPP
 
 #include <iostream>
+#include <memory>
 #include <vector>
 #include "Sprite.hpp"
 
 
 class World {
 private:
-    std::vector<Sprite> sprites;
+    std::vector<std::shared_ptr<Sprite>> sprites;
 public:
     World();
     ~World();
-    void addSprite(Sprite sprite);
-    void removeSprite(Sprite sprite);
+    void addSprite(std::shared_ptr<Sprite> sprite);
+    void removeSprite(const Sprite& sprite);
     void Start();
     void printSprites();
     void run(int start, int end);

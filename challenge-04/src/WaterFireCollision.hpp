@@ -7,6 +7,8 @@
 
 class WaterFireCollision : public CollisionHandler {
 public:
+    WaterFireCollision(): CollisionHandler() {}
+    WaterFireCollision(CollisionHandler* handler): CollisionHandler(handler) {}
     bool collision(Sprite* c1, Sprite* c2, std::function<void(Sprite)> removeSprite) {
         if (c1->getType() == "Water" && c2->getType() == "Fire" ||
             c1->getType() == "Fire" && c2->getType() == "Water") {
