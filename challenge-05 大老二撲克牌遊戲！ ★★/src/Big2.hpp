@@ -4,6 +4,7 @@
 #include "Card.hpp"
 #include "Deck.hpp"
 #include "Player.hpp"
+#include "CardPatternHandler.hpp"
 
 class Big2
 {
@@ -15,6 +16,7 @@ private:
     vector<Card> topPlay;
     int topPlayerIndex;
     int passCount = 0;
+    CardPatternHandler* patternHandler; // Handler for card patterns
 public:
     Big2(/* args */);
     ~Big2();
@@ -25,6 +27,7 @@ public:
     int getTopPlayerIndex() const { return topPlayerIndex; }
     void setPassCount(int count);
     int getPassCount() const { return passCount; }
+    CardPattern isValidPattern(const vector<Card>& cards);
 };
 
 #endif // BIG2_HPP

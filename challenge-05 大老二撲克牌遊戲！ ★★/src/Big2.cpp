@@ -14,8 +14,6 @@ void Big2::setTopPlayerIndex(int index) {
     topPlayerIndex = index;
 }
 
-
-
 void Big2::setTopPlay(const vector<Card>& play) {
     topPlay = play;
 }
@@ -25,6 +23,13 @@ void Big2::setPassCount(int count) {
         throw std::out_of_range("Pass count must be between 0 and 3");
     }
     passCount = count;
+}
+
+CardPattern Big2::isValidPattern(const vector<Card>& cards) {
+    if (patternHandler) {
+        return patternHandler->isValidPattern(cards);
+    }
+    return CardPattern::UNSUPPORTED;
 }
 
 void Big2::start() {
