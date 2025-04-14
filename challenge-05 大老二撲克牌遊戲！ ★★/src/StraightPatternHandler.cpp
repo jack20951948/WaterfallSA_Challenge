@@ -1,13 +1,6 @@
 #include "StraightPatternHandler.hpp"
 #include <set>
 
-bool compare(const Card& a, const Card& b) {
-    if (a.getRank() != b.getRank()) {
-        return a.getRank() < b.getRank();
-    }
-    return a.getSuit() < b.getSuit();
-}
-
 CardPattern StraightPatternHandler::isValidPattern(const vector<Card>& cards) {
     if (cards.size() < 5) {
         return nextHandler ? nextHandler->isValidPattern(cards) : CardPattern::UNSUPPORTED;
@@ -15,7 +8,9 @@ CardPattern StraightPatternHandler::isValidPattern(const vector<Card>& cards) {
 
     // Sort the cards based on rank
     vector<Card> sortedCards = cards;
-    std::sort(sortedCards.begin(), sortedCards.end(), compare);
+    std::sort(sortedCards.begin(), sortedCards.end(), [](const Card& a, const Card& b) {
+        return static_cast<int>(a.getRank()) < static_cast<int>(b.getRank());
+    });
 
     // Check for regular straight pattern
     bool isRegularStraight = true;

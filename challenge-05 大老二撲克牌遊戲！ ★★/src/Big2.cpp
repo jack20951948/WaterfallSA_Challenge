@@ -2,12 +2,32 @@
 
 Big2::Big2(/* args */)
 {
-    // Constructor implementation
+    // Create a chain of responsibility for card pattern handlers
+    patternHandler = 
+        new FullHousePatternHandler(
+            new StraightPatternHandler(
+                new PairPatternHandler(
+                    new SinglePatternHandler()
+                )
+            )
+        );
+
+    // Create a chain of responsibility for card pattern compared handlers
+    comparedHandler = 
+        new FullHousePatternComparedHandler(
+            new StraightPatternComparedHandler(
+                new PairPatternComparedHandler(
+                    new SinglePatternComparedHandler()
+                )
+            )
+        );
 }
 
 Big2::~Big2()
 {
     // Destructor implementation
+    delete patternHandler;
+    delete comparedHandler;
 }
 
 void Big2::setTopPlayerIndex(int index) {
@@ -32,6 +52,22 @@ CardPattern Big2::isValidPattern(const vector<Card>& cards) {
     return CardPattern::UNSUPPORTED;
 }
 
+bool Big2::isBiggerThanTopPlay(const vector<Card>& cards, CardPattern pattern) {
+    if (comparedHandler) {
+        return comparedHandler->isFrontGreater(cards, topPlay, pattern);
+    }
+    return false;
+}
+
+bool Big2::hasClub3(vector<Card>& cards) const {
+    for (const auto& card : cards) {
+        if (card.getRank() == Rank::THREE && card.getSuit() == Suit::CLUBS) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void Big2::start() {
     // Add game logic here
     deck.shuffle();
@@ -52,9 +88,9 @@ void Big2::start() {
 
     // Game loop
     while (true) {
-        cout << "新的回合開始了。" << endl;
         // first round
-        if (round == 0) {
+        if (round == 0 && getTopPlay().empty()) {
+            cout << "新的回合開始了。" << endl;
             for (int i = 0; i < 4; ++i) {
                 if (players[i].hasClub3()) {
                     setTopPlayerIndex(i);
@@ -63,50 +99,117 @@ void Big2::start() {
             }
         }
 
-        currentPlayerIndex = (topPlayerIndex + 1) % 4;
-
         // if pass count is 3, reset the pass count
         if (passCount == 3) {
             passCount = 0;
-            currentPlayerIndex = topPlayerIndex;
             // reset the top play
             topPlay.clear();
+            round++;
+            cout << "新的回合開始了。" << endl;
+        }
+
+        if (getTopPlay().empty()) {
+            currentPlayerIndex = getTopPlayerIndex();
         }
 
         // player turn
         Player& currentPlayer = players[currentPlayerIndex];
         cout << "輪到" << currentPlayer.getName() << "了" << endl;
         currentPlayer.showHand();
-        vector<int> indices;
-        int index;
-        while (true) {
-            cin >> index;
-            if (index == -1) {
-                // player pass
-                passCount++;
-                cout << "玩家 " << currentPlayer.getName() << " PASS." << endl;
+
+        vector<Card> playedCards;
+        CardPattern playedPattern = CardPattern::UNSUPPORTED;
+
+        bool isPass = false;
+        do {
+            vector<int> indices;
+            int index;
+
+            while (true) {
+                cin >> index;
+                if (index == -1) {
+                    if (topPlay.empty()) {
+                        cout << "你不能在新的回合中喊 PASS" << endl;
+                        continue;
+                    }
+                    // player pass
+                    passCount++;
+                    isPass = true;
+                    cout << "玩家 " << currentPlayer.getName() << " PASS." << endl;
+                    break;
+                } else if (index >= 0 && index < currentPlayer.getHandCardAmount()) {
+                    indices.push_back(index);
+                } else {
+                    cout << "無效的索引，請重新輸入：" << endl;
+                    continue;
+                }
+                if (cin.peek() == '\n') {
+                    break;
+                }
+            }
+            if(isPass) {
                 break;
-            } else if (index >= 0 && index < currentPlayer.getHandCardAmount()) {
-                indices.push_back(index);
-            } else {
-                cout << "無效的索引，請重新輸入：" << endl;
+            }
+            // check if the player has played cards
+            playedCards = currentPlayer.play(indices);
+            playedPattern = isValidPattern(playedCards);
+            if (playedPattern == CardPattern::UNSUPPORTED) {
+                cout << "此牌型不合法，請再嘗試一次。" << endl;
+                for (const auto& card : playedCards) {
+                    currentPlayer.dealCard(card);
+                }
+                currentPlayer.sortHandCards();
+                playedCards.clear();
                 continue;
             }
-            if (cin.peek() == '\n') {
-                break;
+            if (round == 0 && getTopPlay().empty() && !hasClub3(playedCards)) {
+                cout << "此牌型不合法，請再嘗試一次。" << endl;
+                for (const auto& card : playedCards) {
+                    currentPlayer.dealCard(card);
+                }
+                currentPlayer.sortHandCards();
+                playedCards.clear();
+                continue;
+            }
+
+            if (!getTopPlay().empty() && !isBiggerThanTopPlay(playedCards, playedPattern)) {
+                cout << "此牌型不合法，請再嘗試一次。" << endl;
+                for (const auto& card : playedCards) {
+                    currentPlayer.dealCard(card);
+                }
+                currentPlayer.sortHandCards();
+                playedCards.clear();
+                continue;
+            }
+            break;
+        } while (true);
+        
+        if (!isPass) {
+            cout << "玩家 " << currentPlayer.getName() << " 打出了 " << playedPattern << " ";
+            for (const auto& card : playedCards) {
+                cout << card.toString() << " ";
+            }
+            cout << endl;
+            if(getTopPlay().empty()) {
+                setTopPlay(playedCards);
+                setTopPlayerIndex(currentPlayerIndex);
+            } else {
+                if (isBiggerThanTopPlay(playedCards, playedPattern)) {
+                    setTopPlay(playedCards);
+                    setTopPlayerIndex(currentPlayerIndex);
+                }
             }
         }
-        // check if the player has played cards
 
 
-        vector<Card> playedCards = currentPlayer.play(indices);
-        cout << "玩家 " << currentPlayer.getName() << " 打出了 " << "<牌型>" << " ";
-        for (const auto& card : playedCards) {
-            cout << card.toString() << " ";
+        if (currentPlayer.isHandCardEmpty()) {
+            cout << "遊戲結束，遊戲的勝利者為 " << currentPlayer.getName() << endl;
+            break;
         }
-        cout << endl;
 
 
+
+        currentPlayerIndex = (currentPlayerIndex + 1) % 4;
     }
 
 }

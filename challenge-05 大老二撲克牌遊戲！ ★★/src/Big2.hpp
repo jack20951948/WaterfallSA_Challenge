@@ -5,6 +5,15 @@
 #include "Deck.hpp"
 #include "Player.hpp"
 #include "CardPatternHandler.hpp"
+#include "FullHousePatternHandler.hpp"
+#include "StraightPatternHandler.hpp"
+#include "PairPatternHandler.hpp"
+#include "SinglePatternHandler.hpp"
+#include "CardPatternComparedHandler.hpp"
+#include "SinglePatternComparedHandler.hpp"
+#include "PairPatternComparedHandler.hpp"
+#include "FullHousePatternComparedHandler.hpp"
+#include "StraightPatternComparedHandler.hpp"
 
 class Big2
 {
@@ -17,6 +26,7 @@ private:
     int topPlayerIndex;
     int passCount = 0;
     CardPatternHandler* patternHandler; // Handler for card patterns
+    CardPatternComparedHandler* comparedHandler; // Handler for comparing card patterns
 public:
     Big2(/* args */);
     ~Big2();
@@ -27,7 +37,9 @@ public:
     int getTopPlayerIndex() const { return topPlayerIndex; }
     void setPassCount(int count);
     int getPassCount() const { return passCount; }
+    bool hasClub3(vector<Card>& cards) const;
     CardPattern isValidPattern(const vector<Card>& cards);
+    bool isBiggerThanTopPlay(const vector<Card>& cards, CardPattern pattern);
 };
 
 #endif // BIG2_HPP

@@ -12,6 +12,7 @@ private:
     Rank rank;
 public:
     Card(Suit suit, Rank rank) : suit(suit), rank(rank) {}
+    Card(const Card& other) : suit(other.suit), rank(other.rank) {}
 
     Suit getSuit() const { return suit; }
     Rank getRank() const { return rank; }
