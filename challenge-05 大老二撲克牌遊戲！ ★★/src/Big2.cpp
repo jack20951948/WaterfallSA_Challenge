@@ -1,34 +1,34 @@
 #include "Big2.hpp"
 
-Big2::Big2(/* args */)
-{
-    // Create a chain of responsibility for card pattern handlers
-    patternHandler = 
-        new FullHousePatternHandler(
-            new StraightPatternHandler(
-                new PairPatternHandler(
-                    new SinglePatternHandler()
-                )
-            )
-        );
+// Big2::Big2(/* args */)
+// {
+//     // Create a chain of responsibility for card pattern handlers
+//     patternHandler = 
+//         new FullHousePatternHandler(
+//             new StraightPatternHandler(
+//                 new PairPatternHandler(
+//                     new SinglePatternHandler()
+//                 )
+//             )
+//         );
 
-    // Create a chain of responsibility for card pattern compared handlers
-    comparedHandler = 
-        new FullHousePatternComparedHandler(
-            new StraightPatternComparedHandler(
-                new PairPatternComparedHandler(
-                    new SinglePatternComparedHandler()
-                )
-            )
-        );
-}
+//     // Create a chain of responsibility for card pattern compared handlers
+//     comparedHandler = 
+//         new FullHousePatternComparedHandler(
+//             new StraightPatternComparedHandler(
+//                 new PairPatternComparedHandler(
+//                     new SinglePatternComparedHandler()
+//                 )
+//             )
+//         );
+// }
 
-Big2::~Big2()
-{
-    // Destructor implementation
-    delete patternHandler;
-    delete comparedHandler;
-}
+// Big2::~Big2()
+// {
+//     // Destructor implementation
+//     delete patternHandler;
+//     delete comparedHandler;
+// }
 
 void Big2::setTopPlayerIndex(int index) {
     topPlayerIndex = index;
@@ -45,16 +45,23 @@ void Big2::setPassCount(int count) {
     passCount = count;
 }
 
-CardPattern Big2::isValidPattern(const vector<Card>& cards) {
-    if (patternHandler) {
-        return patternHandler->isValidPattern(cards);
+// CardPattern Big2::isValidPattern(const vector<Card>& cards) {
+//     if (patternHandler) {
+//         return patternHandler->isValidPattern(cards);
+//     }
+//     return CardPattern::UNSUPPORTED;
+// }
+
+CardPattern* Big2::isValidPattern(const vector<Card>& cards) {
+    if (cardPatternHandler) {
+        return cardPatternHandler->isValidPattern(cards);
     }
-    return CardPattern::UNSUPPORTED;
+    return nullptr;
 }
 
-bool Big2::isBiggerThanTopPlay(const vector<Card>& cards, CardPattern pattern) {
-    if (comparedHandler) {
-        return comparedHandler->isFrontGreater(cards, topPlay, pattern);
+bool Big2::isBiggerThanTopPlay(const vector<Card>& cards) {
+    if (topPlayCardPattern) {
+        return topPlayCardPattern->isFrontGreater(cards, topPlay);
     }
     return false;
 }
@@ -118,7 +125,6 @@ void Big2::start() {
         currentPlayer.showHand();
 
         vector<Card> playedCards;
-        CardPattern playedPattern = CardPattern::UNSUPPORTED;
 
         bool isPass = false;
         do {
@@ -152,8 +158,8 @@ void Big2::start() {
             }
             // check if the player has played cards
             playedCards = currentPlayer.play(indices);
-            playedPattern = isValidPattern(playedCards);
-            if (playedPattern == CardPattern::UNSUPPORTED) {
+            topPlayCardPattern = isValidPattern(playedCards);
+            if (topPlayCardPattern == nullptr || topPlayCardPattern->getPatternName() == "Unsupported") {
                 cout << "此牌型不合法，請再嘗試一次。" << endl;
                 for (const auto& card : playedCards) {
                     currentPlayer.dealCard(card);
@@ -172,7 +178,7 @@ void Big2::start() {
                 continue;
             }
 
-            if (!getTopPlay().empty() && !isBiggerThanTopPlay(playedCards, playedPattern)) {
+            if (!getTopPlay().empty() && !isBiggerThanTopPlay(playedCards)) {
                 cout << "此牌型不合法，請再嘗試一次。" << endl;
                 for (const auto& card : playedCards) {
                     currentPlayer.dealCard(card);
@@ -185,7 +191,7 @@ void Big2::start() {
         } while (true);
         
         if (!isPass) {
-            cout << "玩家 " << currentPlayer.getName() << " 打出了 " << playedPattern << " ";
+            cout << "玩家 " << currentPlayer.getName() << " 打出了 " << topPlayCardPattern->getPatternName() << " ";
             for (const auto& card : playedCards) {
                 cout << card.toString() << " ";
             }
@@ -194,7 +200,7 @@ void Big2::start() {
                 setTopPlay(playedCards);
                 setTopPlayerIndex(currentPlayerIndex);
             } else {
-                if (isBiggerThanTopPlay(playedCards, playedPattern)) {
+                if (isBiggerThanTopPlay(playedCards)) {
                     setTopPlay(playedCards);
                     setTopPlayerIndex(currentPlayerIndex);
                 }

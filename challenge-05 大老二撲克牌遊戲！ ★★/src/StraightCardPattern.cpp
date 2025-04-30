@@ -1,9 +1,9 @@
-#include "StraightPatternHandler.hpp"
+#include "StraightCardPattern.hpp"
 #include <set>
 
-CardPattern StraightPatternHandler::isValidPattern(const vector<Card>& cards) {
+CardPattern* StraightCardPattern::isValidPattern(const vector<Card>& cards) {
     if (cards.size() < 5) {
-        return nextHandler ? nextHandler->isValidPattern(cards) : CardPattern::UNSUPPORTED;
+        return nextHandler->isValidPattern(cards);
     }
 
     // Sort the cards based on rank
@@ -22,7 +22,7 @@ CardPattern StraightPatternHandler::isValidPattern(const vector<Card>& cards) {
     }
 
     if (isRegularStraight) {
-        return CardPattern::STRAIGHT;
+        return this;
     }
 
     // Check for special wrap-around straight patterns like Q, K, A, 2, 3
@@ -39,29 +39,50 @@ CardPattern StraightPatternHandler::isValidPattern(const vector<Card>& cards) {
         rankSet.count(Rank::ACE) && 
         rankSet.count(Rank::TWO) && 
         rankSet.count(Rank::THREE)) {
-        return CardPattern::STRAIGHT;
+        return this;
     } else if (rankSet.size() == 5 && 
         rankSet.count(Rank::KING) &&
         rankSet.count(Rank::ACE) &&
         rankSet.count(Rank::TWO) &&
         rankSet.count(Rank::THREE) &&
         rankSet.count(Rank::FOUR)) {
-        return CardPattern::STRAIGHT;
+        return this;
     } else if (rankSet.size() == 5 &&
         rankSet.count(Rank::ACE) &&
         rankSet.count(Rank::TWO) &&
         rankSet.count(Rank::THREE) &&
         rankSet.count(Rank::FOUR) &&
         rankSet.count(Rank::FIVE)) {
-        return CardPattern::STRAIGHT;
+        return this;
     } else if (rankSet.size() == 5 &&
         rankSet.count(Rank::TWO) &&
         rankSet.count(Rank::THREE) &&
         rankSet.count(Rank::FOUR) &&
-        rankSet.count(Rank::FIVE) &&
-        rankSet.count(Rank::SIX)) {
-        return CardPattern::STRAIGHT;
+        rankSet.count(Rank::FIVE)) {
+        return this;
     }
 
-    return nextHandler ? nextHandler->isValidPattern(cards) : CardPattern::UNSUPPORTED;
+    return nextHandler->isValidPattern(cards);
+}
+
+bool StraightCardPattern::isFrontGreater(const vector<Card>& cards1, const vector<Card>& cards2) {
+    if (cards1.size() != 5 || cards2.size() != 5) {
+        throw std::invalid_argument("Both card sets must contain exactly five cards.");
+    }
+    // Sort the cards based on rank
+    std::vector<Card> sortedCards1 = cards1;
+    std::vector<Card> sortedCards2 = cards2;
+    std::sort(sortedCards1.begin(), sortedCards1.end(), [](const Card& a, const Card& b) {
+        return static_cast<int>(a.getRank()) < static_cast<int>(b.getRank());
+    });
+    std::sort(sortedCards2.begin(), sortedCards2.end(), [](const Card& a, const Card& b) {
+        return static_cast<int>(a.getRank()) < static_cast<int>(b.getRank());
+    });
+    
+    // If the highest cards are equal, compare suits
+    if (sortedCards1.back().getRank() == sortedCards2.back().getRank()) {
+        return sortedCards1.back().getSuit() > sortedCards2.back().getSuit();
+    } else {
+        return sortedCards1.back().getRank() > sortedCards2.back().getRank();
+    }
 }
