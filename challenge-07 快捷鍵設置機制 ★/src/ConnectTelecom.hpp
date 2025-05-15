@@ -12,6 +12,9 @@ public:
     void action() override {
         telecom->connect();
     }
+    void undo() override {
+        telecom->disconnect();
+    }
 };
 
 #endif // CONNECTTELECOM_HPP

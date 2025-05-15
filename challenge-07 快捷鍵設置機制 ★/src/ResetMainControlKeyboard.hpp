@@ -12,6 +12,9 @@ public:
     void action() override {
         mainController->reset_commands();
     }
+    void undo() override {
+        // No undo action for reset
+    }
 };
 
 #endif // RESETMAINCONTROLKEYBOARD_HPP

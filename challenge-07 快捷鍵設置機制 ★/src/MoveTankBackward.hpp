@@ -12,6 +12,9 @@ public:
     void action() override {
         tank->move_backward();
     }
+    void undo() override {
+        tank->move_forward();
+    }
 };
 
 #endif // MOVETANKBACKWARD_HPP
